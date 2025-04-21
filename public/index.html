@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Eventos Registrados</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Eventos Registrados</h1>
+    <button onclick="cargarEventos()">Actualizar</button>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Botón</th>
+          <th>Timestamp</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-eventos"></tbody>
+    </table>
+  </div>
+
+  <script>
+    async function cargarEventos() {
+      const res = await fetch('/api/eventos');
+      const data = await res.json();
+      const tabla = document.getElementById('tabla-eventos');
+      tabla.innerHTML = '';
+
+      data.forEach((e, i) => {
+        const fecha = new Date(e.timestamp).toLocaleString();
+        tabla.innerHTML += `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${e.boton}</td>
+            <td>${e.timestamp}</td>
+            <td>${fecha}</td>
+          </tr>
+        `;
+      });
+    }
+
+    cargarEventos(); // Se carga automáticamente al abrir
+  </script>
+</body>
+</html>
