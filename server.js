@@ -1,38 +1,38 @@
 const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
 const fs = require('fs');
-const path = require('path');
+
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
+// ✅ Habilitar CORS
+app.use(cors());
 
 // Middleware
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.json());
 
+// Base de datos en memoria
 let eventos = [];
 
-// Ruta para recibir datos
-app.post('/evento', (req, res) => {
-    const { boton } = req.body;
-    const timestamp = Date.now();
+// Ruta para recibir eventos (POST)
+app.post('/api/evento', (req, res) => {
+  const evento = req.body;
+  console.log("Evento recibido:", evento);
+  eventos.push(evento);
 
-    if (!boton) {
-        return res.status(400).json({ message: "Falta el número del botón" });
-    }
+  // (opcional) guardar en archivo
+  fs.appendFileSync('eventos.txt', JSON.stringify(evento) + '\n');
 
-    const evento = { boton, timestamp };
-    eventos.push(evento);
-
-    fs.writeFileSync('eventos.json', JSON.stringify(eventos, null, 2));
-
-    console.log('Evento recibido:', evento);
-    res.status(200).json({ message: "Evento recibido", evento });
+  res.status(200).json({ message: 'Evento recibido correctamente' });
 });
 
-// Ruta para mostrar los eventos
+// Ruta para consultar eventos (GET)
 app.get('/api/eventos', (req, res) => {
-    res.json(eventos);
+  res.status(200).json(eventos);
 });
 
+// Iniciar servidor
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
